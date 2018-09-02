@@ -21,6 +21,25 @@ type Triangle struct {
 	v1 *gola.Vector3
 	v2 *gola.Vector3
 }
+type Cube struct {
+	center *gola.Vector3
+	xSize  float64
+	ySize  float64
+	zSize  float64
+}
+type Object3D struct {
+	vertices []float64
+	faces    []int64
+}
+
+func Cube2Triangle(c Cube) [12]Triangle {
+	tris := [12]Triangle{}
+	return tris
+}
+func Object3D2Segment(o Object3D) []Segment {
+	seg := []Segment{}
+	return seg
+}
 
 func SegmentXTriangle(seg Segment, tri Triangle) (intersect bool, focus *gola.Vector3) {
 	dir := seg.b.NewSub(seg.a)
