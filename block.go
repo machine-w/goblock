@@ -32,20 +32,24 @@ type Object3D struct {
 	faces    []int64
 }
 
+func (t Triangle) String() string {
+	return fmt.Sprintf("a:%s,b:%s,c:%s", t.v0, t.v1, t.v2)
+}
+
 func Cube2Triangle(c Cube) [12]Triangle {
 	tris := [12]Triangle{}
 	xDet := c.xSize / 2
 	yDet := c.ySize / 2
 	zDet := c.zSize / 2
 	points := [8]*gola.Vector3{}
-	points[0] = &Vector3{c.center[0] - xDet, c.center[1] - yDet, c.center[2] - zDet}
-	points[1] = &Vector3{c.center[0] + xDet, c.center[1] - yDet, c.center[2] - zDet}
-	points[2] = &Vector3{c.center[0] + xDet, c.center[1] + yDet, c.center[2] - zDet}
-	points[3] = &Vector3{c.center[0] + xDet, c.center[1] - yDet, c.center[2] - zDet}
-	points[4] = &Vector3{c.center[0] - xDet, c.center[1] - yDet, c.center[2] + zDet}
-	points[5] = &Vector3{c.center[0] + xDet, c.center[1] - yDet, c.center[2] + zDet}
-	points[6] = &Vector3{c.center[0] + xDet, c.center[1] + yDet, c.center[2] + zDet}
-	points[7] = &Vector3{c.center[0] + xDet, c.center[1] - yDet, c.center[2] + zDet}
+	points[0] = &gola.Vector3{c.center[0] - xDet, c.center[1] - yDet, c.center[2] - zDet}
+	points[1] = &gola.Vector3{c.center[0] + xDet, c.center[1] - yDet, c.center[2] - zDet}
+	points[2] = &gola.Vector3{c.center[0] + xDet, c.center[1] + yDet, c.center[2] - zDet}
+	points[3] = &gola.Vector3{c.center[0] - xDet, c.center[1] + yDet, c.center[2] - zDet}
+	points[4] = &gola.Vector3{c.center[0] - xDet, c.center[1] - yDet, c.center[2] + zDet}
+	points[5] = &gola.Vector3{c.center[0] + xDet, c.center[1] - yDet, c.center[2] + zDet}
+	points[6] = &gola.Vector3{c.center[0] + xDet, c.center[1] + yDet, c.center[2] + zDet}
+	points[7] = &gola.Vector3{c.center[0] - xDet, c.center[1] + yDet, c.center[2] + zDet}
 	tris[0] = Triangle{v0: points[0], v1: points[1], v2: points[2]}
 	tris[1] = Triangle{v0: points[0], v1: points[2], v2: points[3]}
 	tris[2] = Triangle{v0: points[4], v1: points[5], v2: points[6]}
@@ -65,9 +69,9 @@ func Object3D2Segment(o Object3D) []*Segment {
 	points := []*gola.Vector3{}
 	strDict := make(map[string]int)
 	for i := 0; i <= len(o.vertices)-3; i += 3 {
-		points.append(points, &Vector3{o.vertices[i], o.vertices[i+1], o.vertices[i+2]})
+		points = append(points, &gola.Vector3{o.vertices[i], o.vertices[i+1], o.vertices[i+2]})
 	}
-	lenFace := len(points)
+	lenFace := int64(len(points))
 	for i := 0; i <= len(o.faces)-4; i += 4 {
 		if o.faces[i+1] < lenFace && o.faces[i+2] < lenFace && o.faces[i+3] < lenFace {
 			k1 := fmt.Sprintf("%d-%d", o.faces[i+1], o.faces[i+2])
@@ -75,21 +79,21 @@ func Object3D2Segment(o Object3D) []*Segment {
 			if _, ok := strDict[k1]; !ok {
 				strDict[k1] = 1
 				strDict[k2] = 1
-				seg.append(seg, &Segment{a: points[o.faces[i+1]], b: points[o.faces[i+2]]})
+				seg = append(seg, &Segment{a: points[o.faces[i+1]], b: points[o.faces[i+2]]})
 			}
 			k3 := fmt.Sprintf("%d-%d", o.faces[i+3], o.faces[i+2])
 			k4 := fmt.Sprintf("%d-%d", o.faces[i+2], o.faces[i+3])
 			if _, ok := strDict[k3]; !ok {
 				strDict[k3] = 1
 				strDict[k4] = 1
-				seg.append(seg, &Segment{a: points[o.faces[i+3]], b: points[o.faces[i+2]]})
+				seg = append(seg, &Segment{a: points[o.faces[i+3]], b: points[o.faces[i+2]]})
 			}
 			k5 := fmt.Sprintf("%d-%d", o.faces[i+3], o.faces[i+1])
 			k6 := fmt.Sprintf("%d-%d", o.faces[i+1], o.faces[i+3])
 			if _, ok := strDict[k5]; !ok {
 				strDict[k5] = 1
 				strDict[k6] = 1
-				seg.append(seg, &Segment{a: points[o.faces[i+3]], b: points[o.faces[i+1]]})
+				seg = append(seg, &Segment{a: points[o.faces[i+3]], b: points[o.faces[i+1]]})
 			}
 		}
 	}
@@ -99,12 +103,12 @@ func Object3D2Faces(o Object3D) []Triangle {
 	tris := []Triangle{}
 	points := []*gola.Vector3{}
 	for i := 0; i <= len(o.vertices)-3; i += 3 {
-		points.append(points, &Vector3{o.vertices[i], o.vertices[i+1], o.vertices[i+2]})
+		points = append(points, &gola.Vector3{o.vertices[i], o.vertices[i+1], o.vertices[i+2]})
 	}
-	lenFace := len(points)
+	lenFace := int64(len(points))
 	for i := 0; i <= len(o.faces)-4; i += 4 {
 		if o.faces[i+1] < lenFace && o.faces[i+2] < lenFace && o.faces[i+3] < lenFace {
-			tris.append(tris, Triangle{v0: points[o.faces[i+1]], v0: points[o.faces[i+2]], v0: points[o.faces[i+3]]})
+			tris = append(tris, Triangle{v0: points[o.faces[i+1]], v1: points[o.faces[i+2]], v2: points[o.faces[i+3]]})
 		}
 	}
 	return tris
@@ -115,7 +119,7 @@ func SegmentXTriangle(seg Segment, tri Triangle) (intersect bool, focus *gola.Ve
 	segmentLength := dir.Length()
 	dir.Normalize()
 
-	fmt.Println(seg.a, seg.b)
+	// fmt.Println(seg.a, seg.b)
 	intersect, t, _, _ := IntersectTriangle(Ray{orig: seg.a, dir: dir}, tri)
 	if t > segmentLength {
 		intersect = false
@@ -157,7 +161,7 @@ func IntersectTriangle(ray Ray, tri Triangle) (intersect bool, t, u, v float64) 
 		return
 	}
 	t = e2.Dot(q)
-	fmt.Println(t)
+	// fmt.Println(t)
 	if t < 0.0 {
 		return
 	}
@@ -165,7 +169,7 @@ func IntersectTriangle(ray Ray, tri Triangle) (intersect bool, t, u, v float64) 
 	t *= finvdet
 	u *= finvdet
 	v *= finvdet
-	fmt.Println(t)
+	// fmt.Println(t)
 	intersect = true
 	return
 }

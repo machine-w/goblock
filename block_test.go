@@ -1,6 +1,7 @@
 package block
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ma2ma/gola"
@@ -51,5 +52,12 @@ func TestIntersectTriangle(t *testing.T) {
 	}
 	if actual_un2 == expected {
 		t.Errorf("Expected %v, got %v", expected, actual_un2)
+	}
+}
+
+func TestCube2Triangle(t *testing.T) {
+	actual := Cube2Triangle(Cube{center: &gola.Vector3{1, 1, 1}, xSize: 2, ySize: 2, zSize: 2})
+	for _, v := range actual {
+		fmt.Println(v)
 	}
 }
