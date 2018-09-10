@@ -27,15 +27,25 @@ type Cube struct {
 	ySize  float64
 	zSize  float64
 }
-type Object3D struct {
+type StlObject3D struct {
 	vertices []float64
 	faces    []int64
+}
+type Object3D struct {
+	points     []*gola.Vector3
+	faces      []int64
+	points_len int64
+	MaxZ       float64
+	MaxX       float64
+	MaxY       float64
 }
 
 func (t Triangle) String() string {
 	return fmt.Sprintf("a:%s,b:%s,c:%s", t.v0, t.v1, t.v2)
 }
-
+func (t Segment) String() string {
+	return fmt.Sprintf("a:%s->b:%s", t.a, t.b)
+}
 func Cube2Triangle(c Cube) [12]Triangle {
 	tris := [12]Triangle{}
 	xDet := c.xSize / 2
@@ -64,51 +74,66 @@ func Cube2Triangle(c Cube) [12]Triangle {
 	tris[11] = Triangle{v0: points[2], v1: points[7], v2: points[3]}
 	return tris
 }
-func Object3D2Segment(o Object3D) []*Segment {
-	seg := []*Segment{}
+func NewObject3D(vertices []float64, faces []int64) *Object3D {
 	points := []*gola.Vector3{}
-	strDict := make(map[string]int)
-	for i := 0; i <= len(o.vertices)-3; i += 3 {
-		points = append(points, &gola.Vector3{o.vertices[i], o.vertices[i+1], o.vertices[i+2]})
+	o := Object3D{}
+	for i := 0; i <= len(vertices)-3; i += 3 {
+		points = append(points, &gola.Vector3{vertices[i], vertices[i+1], vertices[i+2]})
+		if vertices[i] > o.MaxX {
+			o.MaxX = vertices[i]
+		}
+		if vertices[i+1] > o.MaxY {
+			o.MaxY = vertices[i+1]
+		}
+		if vertices[i+2] > o.MaxZ {
+			o.MaxZ = vertices[i+2]
+		}
 	}
 	lenFace := int64(len(points))
+	o.points = points
+	o.faces = faces
+	o.points_len = lenFace
+	return &o
+}
+func NewObject3DFromStl(stl *StlObject3D) *Object3D {
+	return NewObject3D(stl.vertices, stl.faces)
+}
+
+func Object3D2Segment(o *Object3D) []*Segment {
+	seg := []*Segment{}
+	strDict := make(map[string]int)
 	for i := 0; i <= len(o.faces)-4; i += 4 {
-		if o.faces[i+1] < lenFace && o.faces[i+2] < lenFace && o.faces[i+3] < lenFace {
+		if o.faces[i+1] < o.points_len && o.faces[i+2] < o.points_len && o.faces[i+3] < o.points_len {
 			k1 := fmt.Sprintf("%d-%d", o.faces[i+1], o.faces[i+2])
 			k2 := fmt.Sprintf("%d-%d", o.faces[i+2], o.faces[i+1])
 			if _, ok := strDict[k1]; !ok {
 				strDict[k1] = 1
 				strDict[k2] = 1
-				seg = append(seg, &Segment{a: points[o.faces[i+1]], b: points[o.faces[i+2]]})
+				seg = append(seg, &Segment{a: o.points[o.faces[i+1]], b: o.points[o.faces[i+2]]})
 			}
 			k3 := fmt.Sprintf("%d-%d", o.faces[i+3], o.faces[i+2])
 			k4 := fmt.Sprintf("%d-%d", o.faces[i+2], o.faces[i+3])
 			if _, ok := strDict[k3]; !ok {
 				strDict[k3] = 1
 				strDict[k4] = 1
-				seg = append(seg, &Segment{a: points[o.faces[i+3]], b: points[o.faces[i+2]]})
+				seg = append(seg, &Segment{a: o.points[o.faces[i+3]], b: o.points[o.faces[i+2]]})
 			}
 			k5 := fmt.Sprintf("%d-%d", o.faces[i+3], o.faces[i+1])
 			k6 := fmt.Sprintf("%d-%d", o.faces[i+1], o.faces[i+3])
 			if _, ok := strDict[k5]; !ok {
 				strDict[k5] = 1
 				strDict[k6] = 1
-				seg = append(seg, &Segment{a: points[o.faces[i+3]], b: points[o.faces[i+1]]})
+				seg = append(seg, &Segment{a: o.points[o.faces[i+3]], b: o.points[o.faces[i+1]]})
 			}
 		}
 	}
 	return seg
 }
-func Object3D2Faces(o Object3D) []Triangle {
+func Object3D2Faces(o *Object3D) []Triangle {
 	tris := []Triangle{}
-	points := []*gola.Vector3{}
-	for i := 0; i <= len(o.vertices)-3; i += 3 {
-		points = append(points, &gola.Vector3{o.vertices[i], o.vertices[i+1], o.vertices[i+2]})
-	}
-	lenFace := int64(len(points))
 	for i := 0; i <= len(o.faces)-4; i += 4 {
-		if o.faces[i+1] < lenFace && o.faces[i+2] < lenFace && o.faces[i+3] < lenFace {
-			tris = append(tris, Triangle{v0: points[o.faces[i+1]], v1: points[o.faces[i+2]], v2: points[o.faces[i+3]]})
+		if o.faces[i+1] < o.points_len && o.faces[i+2] < o.points_len && o.faces[i+3] < o.points_len {
+			tris = append(tris, Triangle{v0: o.points[o.faces[i+1]], v1: o.points[o.faces[i+2]], v2: o.points[o.faces[i+3]]})
 		}
 	}
 	return tris

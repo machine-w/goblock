@@ -61,3 +61,25 @@ func TestCube2Triangle(t *testing.T) {
 		fmt.Println(v)
 	}
 }
+func TestNewObject3D(t *testing.T) {
+	vs := []float64{0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0, 1, 1, 1}
+	fs := []int64{0, 0, 1, 3, 0, 1, 2, 3, 0, 0, 1, 4, 0, 1, 2, 4, 0, 2, 3, 4, 0, 0, 3, 4}
+	actual := NewObject3D(vs, fs)
+	fmt.Println("points:")
+	for _, v := range actual.points {
+		fmt.Println(v)
+	}
+	fmt.Println("points_len:", actual.points_len)
+	fmt.Println("maxx:", actual.MaxX)
+	fmt.Println("maxy:", actual.MaxY)
+	fmt.Println("maxZ:", actual.MaxZ)
+	fmt.Println("faces:")
+	for _, v := range Object3D2Faces(actual) {
+		fmt.Println(v)
+	}
+	fmt.Println("segments:")
+	for _, v := range Object3D2Segment(actual) {
+		fmt.Println(v)
+	}
+
+}
