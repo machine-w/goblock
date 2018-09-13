@@ -2,6 +2,7 @@ package block
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/ma2ma/gola"
 )
@@ -27,6 +28,13 @@ type Cube struct {
 	ySize  float64
 	zSize  float64
 }
+type Block struct {
+	Cube
+	inside   bool
+	nest     int
+	boundary bool
+	incise   bool
+}
 type StlObject3D struct {
 	vertices []float64
 	faces    []int64
@@ -38,6 +46,9 @@ type Object3D struct {
 	MaxZ       float64
 	MaxX       float64
 	MaxY       float64
+	MinZ       float64
+	MinX       float64
+	MinY       float64
 }
 
 func (t Triangle) String() string {
@@ -79,6 +90,14 @@ func NewObject3D(vertices []float64, faces []int64) *Object3D {
 	o := Object3D{}
 	for i := 0; i <= len(vertices)-3; i += 3 {
 		points = append(points, &gola.Vector3{vertices[i], vertices[i+1], vertices[i+2]})
+		if i == 0 {
+			o.MaxX = vertices[i]
+			o.MaxY = vertices[i+1]
+			o.MaxZ = vertices[i+2]
+			o.MinX = vertices[i]
+			o.MinY = vertices[i+1]
+			o.MinZ = vertices[i+2]
+		}
 		if vertices[i] > o.MaxX {
 			o.MaxX = vertices[i]
 		}
@@ -87,6 +106,15 @@ func NewObject3D(vertices []float64, faces []int64) *Object3D {
 		}
 		if vertices[i+2] > o.MaxZ {
 			o.MaxZ = vertices[i+2]
+		}
+		if vertices[i] < o.MinX {
+			o.MinX = vertices[i]
+		}
+		if vertices[i+1] < o.MinY {
+			o.MinY = vertices[i+1]
+		}
+		if vertices[i+2] < o.MinZ {
+			o.MinZ = vertices[i+2]
 		}
 	}
 	lenFace := int64(len(points))
@@ -98,7 +126,26 @@ func NewObject3D(vertices []float64, faces []int64) *Object3D {
 func NewObject3DFromStl(stl *StlObject3D) *Object3D {
 	return NewObject3D(stl.vertices, stl.faces)
 }
-
+func MakeOriBlock(MaxX, MaxY, MaxZ, MinX, MinY, MinZ, LenX, LenY, LenZ float64) []*Block {
+	blocks := []*BLock{}
+	xsize := MaxX - MinX
+	ysize := MaxY - MinY
+	zsize := MaxZ - MinZ
+	xstep := math.Ceil(xsize / LenX)
+	xstart := MinX - (LenX-(xsize%LenX))/2
+	ystep := math.Ceil(ysize / LenY)
+	ystart := MinY - (LenY-(ysize%LenY))/2
+	zstep := math.Ceil(zsize / LenZ)
+	zstart := MinZ - (LenZ-(zsize%LenZ))/2
+	for i := 0; i <= xstep; i++ {
+		for j := 0; j <= ystep; j++ {
+			for k := 0; k <= zstep; k++ {
+				blocks = append(blocks, &Block{center: &gola.Vector3{xstart + LenX*i, ystart + LenY*j, zstart + LenZ*k}, xSize: LenX, ySize: LenY, zSize: LenZ, boundary: false, incise: false, nest: 0, incise: false})
+			}
+		}
+	}
+	return blocks
+}
 func Object3D2Segment(o *Object3D) []*Segment {
 	seg := []*Segment{}
 	strDict := make(map[string]int)
