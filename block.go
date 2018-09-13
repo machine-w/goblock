@@ -138,6 +138,19 @@ func Object3D2Faces(o *Object3D) []Triangle {
 	}
 	return tris
 }
+func PointInsideObject(p *gola.Vector3, ObjectTri []Triangle) bool {
+	ray := Ray{orig: p, dir: &gola.Vector3{1, 0, 0}}
+	intersections := 0
+	for _, tri := range ObjectTri {
+		if i, _, _, _ := IntersectTriangle(ray, tri); i {
+			intersections++
+		}
+	}
+	if intersections%2 == 1 {
+		return true
+	}
+	return false
+}
 
 func SegmentXTriangle(seg Segment, tri Triangle) (intersect bool, focus *gola.Vector3) {
 	dir := seg.b.NewSub(seg.a)

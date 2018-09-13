@@ -81,5 +81,11 @@ func TestNewObject3D(t *testing.T) {
 	for _, v := range Object3D2Segment(actual) {
 		fmt.Println(v)
 	}
-
+}
+func TestPointInsideObject3D(t *testing.T) {
+	vs := []float64{0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0, 1, 1, 1}
+	fs := []int64{0, 0, 1, 3, 0, 1, 2, 3, 0, 0, 1, 4, 0, 1, 2, 4, 0, 2, 3, 4, 0, 0, 3, 4}
+	obj := NewObject3D(vs, fs)
+	actual := PointInsideObject(&gola.Vector3{1, 1, 0.5}, Object3D2Faces(obj))
+	fmt.Println(actual)
 }
