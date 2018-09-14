@@ -54,6 +54,12 @@ type Object3D struct {
 func (t Triangle) String() string {
 	return fmt.Sprintf("a:%s,b:%s,c:%s", t.v0, t.v1, t.v2)
 }
+func (t Cube) String() string {
+	return fmt.Sprintf("[center:%s,x:%g,y:%g,z:%g]", t.center, t.xSize, t.ySize, t.zSize)
+}
+func (t Block) String() string {
+	return fmt.Sprintf("{cube:%s,inside:%t,boundary:%t,incise:%t,nest:%d}\n", t.Cube, t.inside, t.boundary, t.incise, t.nest)
+}
 func (t Segment) String() string {
 	return fmt.Sprintf("a:%s->b:%s", t.a, t.b)
 }

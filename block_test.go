@@ -89,3 +89,7 @@ func TestPointInsideObject3D(t *testing.T) {
 	actual := PointInsideObject(&gola.Vector3{1, 1, 0.5}, Object3D2Faces(obj))
 	fmt.Println(actual)
 }
+func TestMakeOriBlock(t *testing.T) {
+	actual := MakeOriBlock(100, 100, 100, -100, -100, -100, 3, 5, 5)
+	fmt.Println(actual)
+}
