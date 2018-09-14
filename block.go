@@ -127,20 +127,26 @@ func NewObject3DFromStl(stl *StlObject3D) *Object3D {
 	return NewObject3D(stl.vertices, stl.faces)
 }
 func MakeOriBlock(MaxX, MaxY, MaxZ, MinX, MinY, MinZ, LenX, LenY, LenZ float64) []*Block {
-	blocks := []*BLock{}
+	blocks := []*Block{}
 	xsize := MaxX - MinX
 	ysize := MaxY - MinY
 	zsize := MaxZ - MinZ
 	xstep := math.Ceil(xsize / LenX)
-	xstart := MinX - (LenX-(xsize%LenX))/2
+	xstart := MinX - (LenX*xstep-xsize)/2
 	ystep := math.Ceil(ysize / LenY)
-	ystart := MinY - (LenY-(ysize%LenY))/2
+	ystart := MinY - (LenY*ystep-ysize)/2
 	zstep := math.Ceil(zsize / LenZ)
-	zstart := MinZ - (LenZ-(zsize%LenZ))/2
-	for i := 0; i <= xstep; i++ {
-		for j := 0; j <= ystep; j++ {
-			for k := 0; k <= zstep; k++ {
-				blocks = append(blocks, &Block{center: &gola.Vector3{xstart + LenX*i, ystart + LenY*j, zstart + LenZ*k}, xSize: LenX, ySize: LenY, zSize: LenZ, boundary: false, incise: false, nest: 0, incise: false})
+	zstart := MinZ - (LenZ*zstep-zsize)/2
+	var block *Block
+	for i := 0; i <= int(xstep); i++ {
+		for j := 0; j <= int(ystep); j++ {
+			for k := 0; k <= int(zstep); k++ {
+				block = &Block{boundary: false, incise: false, nest: 0}
+				block.Cube.center = &gola.Vector3{xstart + LenX*float64(i), ystart + LenY*float64(j), zstart + LenZ*float64(k)}
+				block.Cube.xSize = LenX
+				block.Cube.ySize = LenY
+				block.Cube.zSize = LenZ
+				blocks = append(blocks, block)
 			}
 		}
 	}
