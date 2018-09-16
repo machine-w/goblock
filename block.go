@@ -33,7 +33,7 @@ type Block struct {
 	inside   bool
 	nest     int
 	boundary bool
-	incise   bool
+	incise   []*Block
 }
 type StlObject3D struct {
 	vertices []float64
@@ -58,7 +58,7 @@ func (t Cube) String() string {
 	return fmt.Sprintf("[center:%s,x:%g,y:%g,z:%g]", t.center, t.xSize, t.ySize, t.zSize)
 }
 func (t Block) String() string {
-	return fmt.Sprintf("{cube:%s,inside:%t,boundary:%t,incise:%t,nest:%d}\n", t.Cube, t.inside, t.boundary, t.incise, t.nest)
+	return fmt.Sprintf("{cube:%s,inside:%t,boundary:%t,incise:%s,nest:%d}\n", t.Cube, t.inside, t.boundary, t.incise, t.nest)
 }
 func (t Segment) String() string {
 	return fmt.Sprintf("a:%s->b:%s", t.a, t.b)
@@ -147,7 +147,7 @@ func MakeOriBlock(MaxX, MaxY, MaxZ, MinX, MinY, MinZ, LenX, LenY, LenZ float64) 
 	for i := 0; i <= int(xstep); i++ {
 		for j := 0; j <= int(ystep); j++ {
 			for k := 0; k <= int(zstep); k++ {
-				block = &Block{boundary: false, incise: false, nest: 0}
+				block = &Block{boundary: false, nest: 0}
 				block.Cube.center = &gola.Vector3{xstart + LenX*float64(i), ystart + LenY*float64(j), zstart + LenZ*float64(k)}
 				block.Cube.xSize = LenX
 				block.Cube.ySize = LenY
@@ -211,7 +211,7 @@ func PointInsideObject(p *gola.Vector3, ObjectTri []Triangle) bool {
 	return false
 }
 
-func SegmentXTriangle(seg Segment, tri Triangle) (intersect bool, focus *gola.Vector3) {
+func SegmentXTriangle(seg *Segment, tri *Triangle) (intersect bool, focus *gola.Vector3) {
 	dir := seg.b.NewSub(seg.a)
 	segmentLength := dir.Length()
 	dir.Normalize()
@@ -269,4 +269,28 @@ func IntersectTriangle(ray Ray, tri Triangle) (intersect bool, t, u, v float64) 
 	// fmt.Println(t)
 	intersect = true
 	return
+}
+func Object3DToBlock(o Object3D, lenX, lenY, lenZ float64, nest int64) []*Block {
+
+	faces := Object3D2Faces(o)
+	segments := Object3D2Segment(o)
+	oriblocks := MakeOriBlock(o.MaxX, o.MaxY, o.MaxZ, o.MinX, o.MinY, o.MinZ, lenX, lenY, lenZ)
+	for _, block := range oriblocks {
+		go BlockAndObject(block, faces, segments)
+	}
+}
+func BlockAndObject(block *Block, faces []Triangle, segments []*Segment) {
+	for _,seg := range segments {
+		if IntersectBlockAndSegments(ntersectBlockAndSegments(block,seg){
+
+		}
+	}
+}
+func IntersectBlockAndSegments(b *Block,seg *Segment) res bool{
+	res = false
+	for _,tri := range Cube2Triangle(b) {
+		if res,_ := SegmentXTriangle(seg,tri); res{
+			break
+		}
+	}
 }
