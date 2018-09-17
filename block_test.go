@@ -15,8 +15,8 @@ func TestSegmentXTriangle(t *testing.T) {
 	v1 := &gola.Vector3{1, -1, -1}
 	v2 := &gola.Vector3{1, 0, 1}
 	expected := true
-	actual, focus := SegmentXTriangle(Segment{a: a, b: b}, Triangle{v0: v0, v1: v1, v2: v2})
-	actual_un, _ := SegmentXTriangle(Segment{a: a, b: b_un}, Triangle{v0: v0, v1: v1, v2: v2})
+	actual, focus := SegmentXTriangle(&Segment{a: a, b: b}, &Triangle{v0: v0, v1: v1, v2: v2})
+	actual_un, _ := SegmentXTriangle(&Segment{a: a, b: b_un}, &Triangle{v0: v0, v1: v1, v2: v2})
 
 	if actual != expected {
 		t.Errorf("Expected %v, got %v", expected, actual)
@@ -41,9 +41,9 @@ func TestIntersectTriangle(t *testing.T) {
 	test1 := Ray{orig: orig_un, dir: dir}
 	test2 := Ray{orig: orig_un2, dir: dir}
 	expected := true
-	actual, _, _, _ := IntersectTriangle(test, tri)
-	actual_un, _, _, _ := IntersectTriangle(test1, tri)
-	actual_un2, _, _, _ := IntersectTriangle(test2, tri)
+	actual, _, _, _ := IntersectTriangle(test, &tri)
+	actual_un, _, _, _ := IntersectTriangle(test1, &tri)
+	actual_un2, _, _, _ := IntersectTriangle(test2, &tri)
 	if actual != expected {
 		t.Errorf("Expected %v, got %v", expected, actual)
 	}

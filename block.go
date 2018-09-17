@@ -147,7 +147,7 @@ func MakeOriBlock(MaxX, MaxY, MaxZ, MinX, MinY, MinZ, LenX, LenY, LenZ float64) 
 	for i := 0; i <= int(xstep); i++ {
 		for j := 0; j <= int(ystep); j++ {
 			for k := 0; k <= int(zstep); k++ {
-				block = &Block{boundary: false, nest: 0}
+				block = &Block{boundary: false, inside: false, nest: 0}
 				block.Cube.center = &gola.Vector3{xstart + LenX*float64(i), ystart + LenY*float64(j), zstart + LenZ*float64(k)}
 				block.Cube.xSize = LenX
 				block.Cube.ySize = LenY
@@ -188,16 +188,16 @@ func Object3D2Segment(o *Object3D) []*Segment {
 	}
 	return seg
 }
-func Object3D2Faces(o *Object3D) []Triangle {
-	tris := []Triangle{}
+func Object3D2Faces(o *Object3D) []*Triangle {
+	tris := []*Triangle{}
 	for i := 0; i <= len(o.faces)-4; i += 4 {
 		if o.faces[i+1] < o.points_len && o.faces[i+2] < o.points_len && o.faces[i+3] < o.points_len {
-			tris = append(tris, Triangle{v0: o.points[o.faces[i+1]], v1: o.points[o.faces[i+2]], v2: o.points[o.faces[i+3]]})
+			tris = append(tris, &Triangle{v0: o.points[o.faces[i+1]], v1: o.points[o.faces[i+2]], v2: o.points[o.faces[i+3]]})
 		}
 	}
 	return tris
 }
-func PointInsideObject(p *gola.Vector3, ObjectTri []Triangle) bool {
+func PointInsideObject(p *gola.Vector3, ObjectTri []*Triangle) bool {
 	ray := Ray{orig: p, dir: &gola.Vector3{1, 0, 0}}
 	intersections := 0
 	for _, tri := range ObjectTri {
@@ -225,7 +225,7 @@ func SegmentXTriangle(seg *Segment, tri *Triangle) (intersect bool, focus *gola.
 	return
 }
 
-func IntersectTriangle(ray Ray, tri Triangle) (intersect bool, t, u, v float64) {
+func IntersectTriangle(ray Ray, tri *Triangle) (intersect bool, t, u, v float64) {
 	intersect = false
 	t, u, v = 0, 0, 0
 	e1 := tri.v1.NewSub(tri.v0)
@@ -270,27 +270,77 @@ func IntersectTriangle(ray Ray, tri Triangle) (intersect bool, t, u, v float64) 
 	intersect = true
 	return
 }
-func Object3DToBlock(o Object3D, lenX, lenY, lenZ float64, nest int64) []*Block {
+func CutBlock(block *Block, level int) []*Block {
+	res := []*Block{}
+	block1 := &Block{boundary: false, inside: false, Cube: Cube{xSize: block.xSize / 2.0, ySize: block.ySize / 2.0, zSize: block.zSize / 2.0}, nest: level}
+	block1.Cube.center = &gola.Vector3{block.center[0] - block.xSize/4.0, block.center[1] - block.ySize/4.0, block.center[2] - block.zSize/4.0}
+	res = append(res, block1)
+	block2 := &Block{boundary: false, inside: false, Cube: Cube{xSize: block.xSize / 2.0, ySize: block.ySize / 2.0, zSize: block.zSize / 2.0}, nest: level}
+	block2.Cube.center = &gola.Vector3{block.center[0] + block.xSize/4.0, block.center[1] - block.ySize/4.0, block.center[2] - block.zSize/4.0}
+	res = append(res, block2)
+	block3 := &Block{boundary: false, inside: false, Cube: Cube{xSize: block.xSize / 2.0, ySize: block.ySize / 2.0, zSize: block.zSize / 2.0}, nest: level}
+	block3.Cube.center = &gola.Vector3{block.center[0] - block.xSize/4.0, block.center[1] + block.ySize/4.0, block.center[2] - block.zSize/4.0}
+	res = append(res, block3)
+	block4 := &Block{boundary: false, inside: false, Cube: Cube{xSize: block.xSize / 2.0, ySize: block.ySize / 2.0, zSize: block.zSize / 2.0}, nest: level}
+	block4.Cube.center = &gola.Vector3{block.center[0] - block.xSize/4.0, block.center[1] - block.ySize/4.0, block.center[2] + block.zSize/4.0}
+	res = append(res, block4)
+	block5 := &Block{boundary: false, inside: false, Cube: Cube{xSize: block.xSize / 2.0, ySize: block.ySize / 2.0, zSize: block.zSize / 2.0}, nest: level}
+	block5.Cube.center = &gola.Vector3{block.center[0] - block.xSize/4.0, block.center[1] + block.ySize/4.0, block.center[2] + block.zSize/4.0}
+	res = append(res, block5)
+	block6 := &Block{boundary: false, inside: false, Cube: Cube{xSize: block.xSize / 2.0, ySize: block.ySize / 2.0, zSize: block.zSize / 2.0}, nest: level}
+	block6.Cube.center = &gola.Vector3{block.center[0] + block.xSize/4.0, block.center[1] + block.ySize/4.0, block.center[2] - block.zSize/4.0}
+	res = append(res, block6)
+	block7 := &Block{boundary: false, inside: false, Cube: Cube{xSize: block.xSize / 2.0, ySize: block.ySize / 2.0, zSize: block.zSize / 2.0}, nest: level}
+	block7.Cube.center = &gola.Vector3{block.center[0] + block.xSize/4.0, block.center[1] - block.ySize/4.0, block.center[2] + block.zSize/4.0}
+	res = append(res, block7)
+	block8 := &Block{boundary: false, inside: false, Cube: Cube{xSize: block.xSize / 2.0, ySize: block.ySize / 2.0, zSize: block.zSize / 2.0}, nest: level}
+	block8.Cube.center = &gola.Vector3{block.center[0] + block.xSize/4.0, block.center[1] + block.ySize/4.0, block.center[2] + block.zSize/4.0}
+	res = append(res, block8)
+	block.incise = res
+	return res
+}
+
+func Object3DToBlock(o *Object3D, lenX, lenY, lenZ float64, nest int) []*Block {
 
 	faces := Object3D2Faces(o)
 	segments := Object3D2Segment(o)
 	oriblocks := MakeOriBlock(o.MaxX, o.MaxY, o.MaxZ, o.MinX, o.MinY, o.MinZ, lenX, lenY, lenZ)
 	for _, block := range oriblocks {
-		go BlockAndObject(block, faces, segments)
+		go BlockAndObject(block, faces, segments, 0, nest)
 	}
+	return oriblocks
 }
-func BlockAndObject(block *Block, faces []Triangle, segments []*Segment) {
-	for _,seg := range segments {
-		if IntersectBlockAndSegments(ntersectBlockAndSegments(block,seg){
-
+func BlockAndObject(block *Block, faces []*Triangle, segments []*Segment, level, nest int) {
+	IntersectSegments := []*Segment{}
+	Intersect := false
+	for _, seg := range segments {
+		if IntersectBlockAndSegments(block, seg) {
+			IntersectSegments = append(IntersectSegments, seg)
+			Intersect = true
 		}
 	}
+	if Intersect { //边界节点
+		block.boundary = true
+		block.inside = true
+		if level < nest {
+			level++
+			for _, b := range CutBlock(block, level) {
+				go BlockAndObject(b, faces, IntersectSegments, level, nest)
+			}
+		}
+	} else { //判断是否内部还是外部
+		if PointInsideObject(block.center, faces) {
+			block.inside = true
+		}
+
+	}
 }
-func IntersectBlockAndSegments(b *Block,seg *Segment) res bool{
-	res = false
-	for _,tri := range Cube2Triangle(b) {
-		if res,_ := SegmentXTriangle(seg,tri); res{
+func IntersectBlockAndSegments(b *Block, seg *Segment) bool {
+	res := false
+	for _, tri := range Cube2Triangle(b.Cube) {
+		if res, _ := SegmentXTriangle(seg, &tri); res {
 			break
 		}
 	}
+	return res
 }
