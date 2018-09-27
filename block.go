@@ -314,9 +314,11 @@ func BlockAndObject(block *Block, faces []*Triangle, segments []*Segment, level,
 	IntersectSegments := []*Segment{}
 	Intersect := false
 	for _, seg := range segments {
-		if IntersectBlockAndSegments(block, seg) {
+		Intersect = IntersectBlockAndSegments(block, seg)
+		if Intersect {
 			IntersectSegments = append(IntersectSegments, seg)
-			Intersect = true
+			// fmt.Println(seg)
+			// Intersect = true
 		}
 	}
 	if Intersect { //边界节点
@@ -338,7 +340,9 @@ func BlockAndObject(block *Block, faces []*Triangle, segments []*Segment, level,
 func IntersectBlockAndSegments(b *Block, seg *Segment) bool {
 	res := false
 	for _, tri := range Cube2Triangle(b.Cube) {
-		if res, _ := SegmentXTriangle(seg, &tri); res {
+		if ress, _ := SegmentXTriangle(seg, &tri); ress {
+			res = true
+			// fmt.Println("sdf")
 			break
 		}
 	}

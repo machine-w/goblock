@@ -55,41 +55,48 @@ func TestIntersectTriangle(t *testing.T) {
 	}
 }
 
-func TestCube2Triangle(t *testing.T) {
-	actual := Cube2Triangle(Cube{center: &gola.Vector3{1, 1, 1}, xSize: 2, ySize: 2, zSize: 2})
-	for _, v := range actual {
-		fmt.Println(v)
-	}
-}
-func TestNewObject3D(t *testing.T) {
-	vs := []float64{0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0, 1, 1, 1}
-	fs := []int64{0, 0, 1, 3, 0, 1, 2, 3, 0, 0, 1, 4, 0, 1, 2, 4, 0, 2, 3, 4, 0, 0, 3, 4}
-	actual := NewObject3D(vs, fs)
-	fmt.Println("points:")
-	for _, v := range actual.points {
-		fmt.Println(v)
-	}
-	fmt.Println("points_len:", actual.points_len)
-	fmt.Println("maxx:", actual.MaxX)
-	fmt.Println("maxy:", actual.MaxY)
-	fmt.Println("maxZ:", actual.MaxZ)
-	fmt.Println("faces:")
-	for _, v := range Object3D2Faces(actual) {
-		fmt.Println(v)
-	}
-	fmt.Println("segments:")
-	for _, v := range Object3D2Segment(actual) {
-		fmt.Println(v)
-	}
-}
-func TestPointInsideObject3D(t *testing.T) {
+// func TestCube2Triangle(t *testing.T) {
+// actual := Cube2Triangle(Cube{center: &gola.Vector3{1, 1, 1}, xSize: 2, ySize: 2, zSize: 2})
+// for _, v := range actual {
+// fmt.Println(v)
+// }
+// }
+// func TestNewObject3D(t *testing.T) {
+// vs := []float64{0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0, 1, 1, 1}
+// fs := []int64{0, 0, 1, 3, 0, 1, 2, 3, 0, 0, 1, 4, 0, 1, 2, 4, 0, 2, 3, 4, 0, 0, 3, 4}
+// actual := NewObject3D(vs, fs)
+// fmt.Println("points:")
+// for _, v := range actual.points {
+// fmt.Println(v)
+// }
+// fmt.Println("points_len:", actual.points_len)
+// fmt.Println("maxx:", actual.MaxX)
+// fmt.Println("maxy:", actual.MaxY)
+// fmt.Println("maxZ:", actual.MaxZ)
+// fmt.Println("faces:")
+// for _, v := range Object3D2Faces(actual) {
+// fmt.Println(v)
+// }
+// fmt.Println("segments:")
+// for _, v := range Object3D2Segment(actual) {
+// fmt.Println(v)
+// }
+// }
+// func TestPointInsideObject3D(t *testing.T) {
+// vs := []float64{0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0, 1, 1, 1}
+// fs := []int64{0, 0, 1, 3, 0, 1, 2, 3, 0, 0, 1, 4, 0, 1, 2, 4, 0, 2, 3, 4, 0, 0, 3, 4}
+// obj := NewObject3D(vs, fs)
+// actual := PointInsideObject(&gola.Vector3{1, 1, 0.5}, Object3D2Faces(obj))
+// fmt.Println(actual)
+// }
+// func TestMakeOriBlock(t *testing.T) {
+// actual := MakeOriBlock(100, 100, 100, -100, -100, -100, 3, 5, 5)
+// fmt.Println(actual)
+// }
+func TestSpliteObject(t *testing.T) {
 	vs := []float64{0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0, 1, 1, 1}
 	fs := []int64{0, 0, 1, 3, 0, 1, 2, 3, 0, 0, 1, 4, 0, 1, 2, 4, 0, 2, 3, 4, 0, 0, 3, 4}
 	obj := NewObject3D(vs, fs)
-	actual := PointInsideObject(&gola.Vector3{1, 1, 0.5}, Object3D2Faces(obj))
-	fmt.Println(actual)
-}
-func TestMakeOriBlock(t *testing.T) {
-	actual := MakeOriBlock(100, 100, 100, -100, -100, -100, 3, 5, 5)
+	actual := Object3DToBlock(obj, 0.15, 0.15, 0.15, 4)
 	fmt.Println(actual)
 }
