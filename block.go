@@ -63,6 +63,34 @@ func (t Block) String() string {
 func (t Segment) String() string {
 	return fmt.Sprintf("a:%s->b:%s", t.a, t.b)
 }
+func Cube2Segments(c Cube) [12]Segment {
+	segs := [12]Segment{}
+	xDet := c.xSize / 2
+	yDet := c.ySize / 2
+	zDet := c.zSize / 2
+	points := [8]*gola.Vector3{}
+	points[0] = &gola.Vector3{c.center[0] - xDet, c.center[1] - yDet, c.center[2] - zDet}
+	points[1] = &gola.Vector3{c.center[0] + xDet, c.center[1] - yDet, c.center[2] - zDet}
+	points[2] = &gola.Vector3{c.center[0] + xDet, c.center[1] + yDet, c.center[2] - zDet}
+	points[3] = &gola.Vector3{c.center[0] - xDet, c.center[1] + yDet, c.center[2] - zDet}
+	points[4] = &gola.Vector3{c.center[0] - xDet, c.center[1] - yDet, c.center[2] + zDet}
+	points[5] = &gola.Vector3{c.center[0] + xDet, c.center[1] - yDet, c.center[2] + zDet}
+	points[6] = &gola.Vector3{c.center[0] + xDet, c.center[1] + yDet, c.center[2] + zDet}
+	points[7] = &gola.Vector3{c.center[0] - xDet, c.center[1] + yDet, c.center[2] + zDet}
+	segs[0] = Segment{a: points[0], b: points[1]}
+	segs[1] = Segment{a: points[1], b: points[2]}
+	segs[2] = Segment{a: points[2], b: points[3]}
+	segs[3] = Segment{a: points[3], b: points[0]}
+	segs[4] = Segment{a: points[4], b: points[5]}
+	segs[5] = Segment{a: points[5], b: points[6]}
+	segs[6] = Segment{a: points[6], b: points[7]}
+	segs[7] = Segment{a: points[7], b: points[4]}
+	segs[8] = Segment{a: points[0], b: points[4]}
+	segs[9] = Segment{a: points[1], b: points[5]}
+	segs[10] = Segment{a: points[2], b: points[6]}
+	segs[11] = Segment{a: points[3], b: points[7]}
+	return segs
+}
 func Cube2Triangle(c Cube) [12]Triangle {
 	tris := [12]Triangle{}
 	xDet := c.xSize / 2
