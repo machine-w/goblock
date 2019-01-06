@@ -362,13 +362,58 @@ func BlockAndObject(block *Block, faces []*Triangle, segments []*Segment, level,
 		if PointInsideObject(block.center, faces) {
 			block.inside = true
 		}
-
 	}
 }
 func IntersectBlockAndSegments(b *Block, seg *Segment) bool {
 	res := false
 	for _, tri := range Cube2Triangle(b.Cube) {
 		if ress, _ := SegmentXTriangle(seg, &tri); ress {
+			res = true
+			// fmt.Println("sdf")
+			break
+		}
+	}
+	return res
+}
+func Object3DToBlock2(o *Object3D, lenX, lenY, lenZ float64, nest int) []*Block {
+
+	faces := Object3D2Faces(o)
+	oriblocks := MakeOriBlock(o.MaxX, o.MaxY, o.MaxZ, o.MinX, o.MinY, o.MinZ, lenX, lenY, lenZ)
+	for _, block := range oriblocks {
+		go BlockAndObjectSlow(block, faces, faces, 0, nest)
+	}
+	return oriblocks
+}
+func BlockAndObjectSlow(block *Block, faces []*Triangle, intersectfaces []*Triangle, level, nest int) {
+	IntersectTriangles := []*Triangle{}
+	Intersect := false
+	for _, f := range intersectfaces {
+		Intersect = IntersectBlockAndTriangles(block, f)
+		if Intersect {
+			IntersectTriangles = append(IntersectTriangles, f)
+			// fmt.Println(seg)
+			// Intersect = true
+		}
+	}
+	if Intersect { //边界节点
+		block.boundary = true
+		block.inside = true
+		if level < nest {
+			level++
+			for _, b := range CutBlock(block, level) {
+				go BlockAndObjectSlow(b, faces, IntersectTriangles, level, nest)
+			}
+		}
+	} else { //判断是否内部还是外部
+		if PointInsideObject(block.center, faces) {
+			block.inside = true
+		}
+	}
+}
+func IntersectBlockAndTriangles(b *Block, tri *Triangle) bool {
+	res := false
+	for _, seg := range Cube2Segments(b.Cube) {
+		if ress, _ := SegmentXTriangle(&seg, tri); ress {
 			res = true
 			// fmt.Println("sdf")
 			break

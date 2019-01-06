@@ -61,6 +61,13 @@ func TestIntersectTriangle(t *testing.T) {
 // fmt.Println(v)
 // }
 // }
+func TestCube2Segments(t *testing.T) {
+	actual := Cube2Segments(Cube{center: &gola.Vector3{1, 1, 1}, xSize: 2, ySize: 2, zSize: 2})
+	for _, v := range actual {
+		fmt.Println(v)
+	}
+}
+
 // func TestNewObject3D(t *testing.T) {
 // vs := []float64{0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0, 1, 1, 1}
 // fs := []int64{0, 0, 1, 3, 0, 1, 2, 3, 0, 0, 1, 4, 0, 1, 2, 4, 0, 2, 3, 4, 0, 0, 3, 4}
@@ -97,6 +104,6 @@ func TestSpliteObject(t *testing.T) {
 	vs := []float64{0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0, 1, 1, 1}
 	fs := []int64{0, 0, 1, 3, 0, 1, 2, 3, 0, 0, 1, 4, 0, 1, 2, 4, 0, 2, 3, 4, 0, 0, 3, 4}
 	obj := NewObject3D(vs, fs)
-	actual := Object3DToBlock(obj, 0.15, 0.15, 0.15, 4)
+	actual := Object3DToBlock2(obj, 0.15, 0.15, 0.15, 4)
 	fmt.Println(actual)
 }
